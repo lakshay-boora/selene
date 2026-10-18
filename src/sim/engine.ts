@@ -41,7 +41,6 @@ export class Engine {
     this.cb = onUpdate;
     this.state = initialState(this.params);
 
-    // force a minimum size so we never create a 0x0 canvas
     const w = Math.max(container.clientWidth || 800, 1);
     const h = Math.max(container.clientHeight || 600, 1);
 
@@ -57,7 +56,6 @@ export class Engine {
     this.light = new THREE.DirectionalLight(0xffffff, 2.2);
     this.scene.add(this.light);
 
-    // stars
     const geo = new THREE.BufferGeometry();
     const pts = new Float32Array(1200 * 3);
     for (let i = 0; i < pts.length; i++) pts[i] = (Math.random() - 0.5) * 1.5e7;
@@ -77,7 +75,6 @@ export class Engine {
     );
     this.scene.add(this.moon);
 
-    // trail
     this.trailBuf = new Float32Array(1200 * 3);
     const tGeo = new THREE.BufferGeometry();
     tGeo.setAttribute("position", new THREE.BufferAttribute(this.trailBuf, 3));
@@ -90,7 +87,6 @@ export class Engine {
     this.setupInput();
     window.addEventListener("resize", this.onResize);
 
-    // resize again after layout settles (fixes blank canvas on first paint)
     requestAnimationFrame(() => {
       this.onResize();
       this.tick();
@@ -181,7 +177,6 @@ export class Engine {
       this.trail.geometry.setDrawRange(0, Math.min(this.trailIdx, 1200));
     }
 
-    // orbit camera
     const cp = Math.cos(this.pitch);
     this.camera.position.set(
       cp * Math.cos(this.yaw) * this.camDist,
