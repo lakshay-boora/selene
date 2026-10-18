@@ -14,7 +14,7 @@ export type Body = {
 export type State = {
   earth: Body;
   moon: Body;
-  t: number; // hours
+  t: number;
   hit: boolean;
   hitSpeed: number;
 };
@@ -45,7 +45,6 @@ export function initialState(p: Params): State {
   const mM = REAL.M_MOON * p.moonMassMul;
   const tot = mE + mM;
 
-  // barycenter
   const re = (mM / tot) * r0;
   const rm = (mE / tot) * r0;
 
@@ -71,7 +70,6 @@ export function step(state: State, p: Params, dt: number): State {
   const muM = GM_MOON * p.gMul * p.moonMassMul;
   const col = earthR(p) + moonR(p);
 
-  // more steps when close
   const dx = state.moon.pos.x - state.earth.pos.x;
   const dy = state.moon.pos.y - state.earth.pos.y;
   const dz = state.moon.pos.z - state.earth.pos.z;
@@ -111,7 +109,6 @@ export function step(state: State, p: Params, dt: number): State {
     const aEy = muM * ry * inv;
     const aEz = muM * rz * inv;
 
-    // simple euler for now (good enough)
     mVel.x += aMx * h;
     mVel.y += aMy * h;
     mVel.z += aMz * h;
@@ -162,7 +159,6 @@ export function metrics(state: State, p: Params): Metrics {
     period = (2 * Math.PI * Math.sqrt((a * a * a) / mu)) / 24;
   }
 
-  // rough eclipse check
   const ang = (p.sunAzimuth * Math.PI) / 180;
   const sx = Math.cos(ang);
   const sy = Math.sin(ang);
