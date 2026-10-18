@@ -1,15 +1,13 @@
-// real numbers (approx)
 export const REAL = {
   G: 6.6743e-11,
   M_EARTH: 5.972e24,
   M_MOON: 7.342e22,
-  R_EARTH: 6371, // km
+  R_EARTH: 6371,
   R_MOON: 1737.4,
   DIST: 384400,
   PERIOD_DAYS: 27.32,
 };
 
-// convert G so we can work in km and hours
 const G_km_h = REAL.G * 1e-9 * 3600 * 3600;
 export const GM_EARTH = G_km_h * REAL.M_EARTH;
 export const GM_MOON = G_km_h * REAL.M_MOON;

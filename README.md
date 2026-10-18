@@ -1,12 +1,12 @@
-# Selene
+# selene
 
-Small Earth-Moon gravity sim.
+earth-moon gravity thing i made for fun
 
-React + Three.js. Newtonian two-body, basic Verlet-ish integration, a few sliders.
+react + three.js
+
+just open it and mess with the sliders. presets are there if you want to see eclipses or crash them into each other.
 
 ```
 npm i
 npm run dev
 ```
-
-That's it.
