@@ -41,19 +41,23 @@ export class Engine {
     this.cb = onUpdate;
     this.state = initialState(this.params);
 
+    // force a minimum size so we never create a 0x0 canvas
+    const w = Math.max(container.clientWidth || 800, 1);
+    const h = Math.max(container.clientHeight || 600, 1);
+
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    this.renderer.setSize(container.clientWidth, container.clientHeight);
-    this.renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    this.renderer.setSize(w, h);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     container.appendChild(this.renderer.domElement);
 
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 50, 5e7);
+    this.camera = new THREE.PerspectiveCamera(45, w / h, 50, 5e7);
 
     this.scene.add(new THREE.AmbientLight(0x1a1a22));
     this.light = new THREE.DirectionalLight(0xffffff, 2.2);
     this.scene.add(this.light);
 
-    // simple stars
+    // stars
     const geo = new THREE.BufferGeometry();
     const pts = new Float32Array(1200 * 3);
     for (let i = 0; i < pts.length; i++) pts[i] = (Math.random() - 0.5) * 1.5e7;
@@ -61,22 +65,36 @@ export class Engine {
     this.scene.add(new THREE.Points(geo, new THREE.PointsMaterial({ color: 0x778899, size: 1.2 })));
 
     const sph = new THREE.SphereGeometry(1, 40, 28);
-    this.earth = new THREE.Mesh(sph, new THREE.MeshStandardMaterial({ color: 0x1a3a8a, roughness: 0.75 }));
+    this.earth = new THREE.Mesh(
+      sph,
+      new THREE.MeshStandardMaterial({ color: 0x1a3a8a, roughness: 0.75 })
+    );
     this.scene.add(this.earth);
 
-    this.moon = new THREE.Mesh(sph, new THREE.MeshStandardMaterial({ color: 0xaaaaaa, roughness: 0.95 }));
+    this.moon = new THREE.Mesh(
+      sph,
+      new THREE.MeshStandardMaterial({ color: 0xaaaaaa, roughness: 0.95 })
+    );
     this.scene.add(this.moon);
 
     // trail
     this.trailBuf = new Float32Array(1200 * 3);
     const tGeo = new THREE.BufferGeometry();
     tGeo.setAttribute("position", new THREE.BufferAttribute(this.trailBuf, 3));
-    this.trail = new THREE.Line(tGeo, new THREE.LineBasicMaterial({ color: 0x4477aa, transparent: true, opacity: 0.45 }));
+    this.trail = new THREE.Line(
+      tGeo,
+      new THREE.LineBasicMaterial({ color: 0x4477aa, transparent: true, opacity: 0.45 })
+    );
     this.scene.add(this.trail);
 
     this.setupInput();
     window.addEventListener("resize", this.onResize);
-    this.tick();
+
+    // resize again after layout settles (fixes blank canvas on first paint)
+    requestAnimationFrame(() => {
+      this.onResize();
+      this.tick();
+    });
   }
 
   private setupInput() {
@@ -93,17 +111,23 @@ export class Engine {
       this.lastX = e.clientX;
       this.lastY = e.clientY;
     });
-    window.addEventListener("mouseup", () => (this.drag = false));
-    canvas.addEventListener("wheel", (e) => {
-      e.preventDefault();
-      this.camDist *= e.deltaY > 0 ? 1.12 : 0.89;
-      this.camDist = Math.max(20000, Math.min(2.5e6, this.camDist));
-    }, { passive: false });
+    window.addEventListener("mouseup", () => {
+      this.drag = false;
+    });
+    canvas.addEventListener(
+      "wheel",
+      (e) => {
+        e.preventDefault();
+        this.camDist *= e.deltaY > 0 ? 1.12 : 0.89;
+        this.camDist = Math.max(20000, Math.min(2.5e6, this.camDist));
+      },
+      { passive: false }
+    );
   }
 
   private onResize = () => {
-    const w = this.el.clientWidth;
-    const h = this.el.clientHeight;
+    const w = Math.max(this.el.clientWidth || 1, 1);
+    const h = Math.max(this.el.clientHeight || 1, 1);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(w, h);
@@ -157,7 +181,7 @@ export class Engine {
       this.trail.geometry.setDrawRange(0, Math.min(this.trailIdx, 1200));
     }
 
-    // orbit cam
+    // orbit camera
     const cp = Math.cos(this.pitch);
     this.camera.position.set(
       cp * Math.cos(this.yaw) * this.camDist,
