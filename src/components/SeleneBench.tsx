@@ -10,9 +10,16 @@ export default function SeleneBench() {
 
   useEffect(() => {
     if (!ref.current) return;
-    const e = new Engine(ref.current, setSnap);
-    eng.current = e;
-    return () => e.dispose();
+    try {
+      const e = new Engine(ref.current, setSnap);
+      eng.current = e;
+      return () => {
+        e.dispose();
+        eng.current = null;
+      };
+    } catch (err) {
+      console.error("Engine failed to start:", err);
+    }
   }, []);
 
   function change(key: keyof Params, val: number, reset = false) {
@@ -48,8 +55,12 @@ export default function SeleneBench() {
             <div>Speed: {m ? m.speed.toFixed(1) + " km/h" : "—"}</div>
             <div>Period: {m?.period ? m.period.toFixed(1) + " d" : "—"}</div>
             <div>Ecc: {m ? m.ecc.toFixed(3) : "—"}</div>
-            {m?.eclipse !== "none" && <div className="ecl">{m.eclipse}</div>}
-            {snap?.hit && <div className="hit">impact @ {Math.round(snap.hitSpeed)} km/h</div>}
+            {m && m.eclipse !== "none" && (
+              <div className="ecl">{m.eclipse}</div>
+            )}
+            {snap?.hit && (
+              <div className="hit">impact @ {Math.round(snap.hitSpeed)} km/h</div>
+            )}
           </div>
         </div>
 
@@ -69,28 +80,58 @@ export default function SeleneBench() {
             <h3>params</h3>
             <label>
               speed × {p.speedMul.toFixed(2)}
-              <input type="range" min={0} max={2} step={0.05} value={p.speedMul}
-                onChange={(e) => change("speedMul", +e.target.value, true)} />
+              <input
+                type="range"
+                min={0}
+                max={2}
+                step={0.05}
+                value={p.speedMul}
+                onChange={(e) => change("speedMul", +e.target.value, true)}
+              />
             </label>
             <label>
               distance × {p.distMul.toFixed(2)}
-              <input type="range" min={0.4} max={2.5} step={0.05} value={p.distMul}
-                onChange={(e) => change("distMul", +e.target.value, true)} />
+              <input
+                type="range"
+                min={0.4}
+                max={2.5}
+                step={0.05}
+                value={p.distMul}
+                onChange={(e) => change("distMul", +e.target.value, true)}
+              />
             </label>
             <label>
               G × {p.gMul.toFixed(1)}
-              <input type="range" min={0.2} max={5} step={0.1} value={p.gMul}
-                onChange={(e) => change("gMul", +e.target.value)} />
+              <input
+                type="range"
+                min={0.2}
+                max={5}
+                step={0.1}
+                value={p.gMul}
+                onChange={(e) => change("gMul", +e.target.value)}
+              />
             </label>
             <label>
               time scale {p.hoursPerSecond} h/s
-              <input type="range" min={1} max={120} step={1} value={p.hoursPerSecond}
-                onChange={(e) => change("hoursPerSecond", +e.target.value)} />
+              <input
+                type="range"
+                min={1}
+                max={120}
+                step={1}
+                value={p.hoursPerSecond}
+                onChange={(e) => change("hoursPerSecond", +e.target.value)}
+              />
             </label>
             <label>
               sun angle {p.sunAzimuth}°
-              <input type="range" min={0} max={360} step={5} value={p.sunAzimuth}
-                onChange={(e) => change("sunAzimuth", +e.target.value)} />
+              <input
+                type="range"
+                min={0}
+                max={360}
+                step={5}
+                value={p.sunAzimuth}
+                onChange={(e) => change("sunAzimuth", +e.target.value)}
+              />
             </label>
           </section>
         </div>

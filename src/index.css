@@ -1,17 +1,22 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
+
 body {
   font-family: system-ui, -apple-system, sans-serif;
   background: #0a0c12;
   color: #c8cdd6;
-  height: 100vh;
   overflow: hidden;
 }
 
 .app {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
+  width: 100%;
 }
 
 header {
@@ -21,6 +26,7 @@ header {
   padding: 8px 16px;
   background: #11141c;
   border-bottom: 1px solid #222;
+  flex-shrink: 0;
 }
 
 header h1 {
@@ -47,12 +53,15 @@ header button:hover, .btns button:hover {
 .body {
   display: flex;
   flex: 1;
+  min-height: 0;
   overflow: hidden;
 }
 
 .view {
   flex: 1;
   position: relative;
+  min-width: 0;
+  min-height: 0;
 }
 
 .view canvas {
@@ -65,13 +74,14 @@ header button:hover, .btns button:hover {
   position: absolute;
   top: 12px;
   left: 12px;
-  background: rgba(10, 12, 18, 0.8);
+  background: rgba(10, 12, 18, 0.85);
   border: 1px solid #333;
   padding: 10px 12px;
   font-size: 0.8rem;
   line-height: 1.55;
   pointer-events: none;
   border-radius: 4px;
+  z-index: 10;
 }
 
 .ecl { color: #e6a23c; text-transform: uppercase; font-size: 0.75rem; }
@@ -84,6 +94,7 @@ header button:hover, .btns button:hover {
   padding: 12px;
   overflow-y: auto;
   font-size: 0.82rem;
+  flex-shrink: 0;
 }
 
 .side h3 {
